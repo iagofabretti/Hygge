@@ -9,8 +9,10 @@ document.addEventListener('DOMContentLoaded', function() {
     Navigation.init();
     HeroSlider.init();
     ScrollAnimations.init();
-    GalleryGrid.init();
+    GalleryCarousel.init();
     BackToTop.init();
+    TeamModal.init();
+    SpaceMarquee.init();
 });
 
 /* ============================================
@@ -219,29 +221,26 @@ const ScrollAnimations = {
 };
 
 /* ============================================
-   GALLERY GRID MODULE
+   GALLERY CAROUSEL MODULE
    ============================================ */
-const GalleryGrid = {
-    grid: null,
-    loadMoreBtn: null,
+const GalleryCarousel = {
+    track: null,
+    images: [],
+    slides: [],
+    currentIndex: 0,
+    autoPlayInterval: null,
     lightbox: null,
     lightboxImg: null,
-    images: [],
-    displayedImages: 12,
-    imagesPerLoad: 8,
-    currentIndex: 0,
-    transitionInterval: null,
-    galleryItems: [],
     
     init: function() {
-        this.grid = document.getElementById('gallery-grid');
-        this.loadMoreBtn = document.getElementById('load-more-btn');
+        this.track = document.getElementById('gallery-track');
         this.lightbox = document.getElementById('lightbox');
         this.lightboxImg = document.getElementById('lightbox-img');
         
-        if (!this.grid) return;
+        if (!this.track) return;
         
         this.loadImages();
+        this.bindEvents();
     },
     
     loadImages: function() {
@@ -250,10 +249,9 @@ const GalleryGrid = {
         fetch('fotos.json')
             .then(response => response.json())
             .then(data => {
-                self.images = self.shuffleArray(data.fotos);
-                self.buildGrid();
-                self.bindEvents();
-                self.startAutoTransition();
+                self.images = data.fotos;
+                self.buildCarousel();
+                self.startAutoPlay();
             })
             .catch(error => {
                 console.log('Loading fallback images');
@@ -268,200 +266,200 @@ const GalleryGrid = {
             'DSC06893.jpg', 'DSC06911.jpg', 'DSC06932.jpg', 'DSC06943.jpg',
             'DSC07037.jpg', 'DSC07085.jpg', 'DSC07349.jpg', 'DSC07371.jpg'
         ];
-        this.buildGrid();
-        this.bindEvents();
-        this.startAutoTransition();
+        this.buildCarousel();
+        this.startAutoPlay();
     },
     
-    shuffleArray: function(array) {
-        const shuffled = [...array];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-        return shuffled;
-    },
-    
-    buildGrid: function() {
-        const self = this;
-        this.grid.innerHTML = '';
-        this.galleryItems = [];
+    buildCarousel: function() {
+        this.track.innerHTML = '';
+        this.slides = [];
         
-        const imagesToShow = this.images.slice(0, this.displayedImages);
-        
-        imagesToShow.forEach((img, index) => {
-            const item = self.createGalleryItem(img, index);
-            self.grid.appendChild(item);
-            self.galleryItems.push({
-                element: item,
-                currentImageIndex: index
+        this.images.forEach((img, index) => {
+            const slide = document.createElement('div');
+            slide.className = 'gallery-slide';
+            slide.innerHTML = `<img src="Fotos/${img}" alt="Hy.gge Salon" loading="lazy">`;
+            
+            slide.addEventListener('click', () => {
+                // Calculate distance considering wrap-around for click logic if needed
+                // For now, simple index check
+                if (index === this.currentIndex) {
+                    this.openLightbox(`Fotos/${img}`);
+                } else {
+                    this.goToSlide(index);
+                }
             });
+            
+            this.track.appendChild(slide);
+            this.slides.push(slide);
         });
         
-        this.updateLoadMoreButton();
+        this.currentIndex = 0;
+        // Wait for DOM update
+        setTimeout(() => this.updateCarousel(), 100);
     },
     
-    createGalleryItem: function(img, index) {
-        const self = this;
-        const item = document.createElement('div');
+    updateCarousel: function() {
+        if (this.slides.length === 0) return;
         
-        // Add variety to grid layout
-        const layoutClass = this.getLayoutClass(index);
-        item.className = `gallery-item ${layoutClass}`;
+        const total = this.slides.length;
         
-        item.innerHTML = `
-            <img class="gallery-img current" src="Fotos/${img}" alt="Hy.gge Salon" loading="lazy">
-            <img class="gallery-img next" src="" alt="Hy.gge Salon" loading="lazy">
-            <div class="gallery-overlay">
-                <i class="fas fa-expand"></i>
-            </div>
-        `;
-        
-        item.addEventListener('click', () => self.openLightbox(item.querySelector('.gallery-img.current').src));
-        
-        return item;
-    },
-    
-    startAutoTransition: function() {
-        const self = this;
-        
-        // Transition one random image every 1.5 seconds
-        this.transitionInterval = setInterval(function() {
-            self.transitionRandomImage();
-        }, 1500);
-    },
-    
-    transitionRandomImage: function() {
-        if (this.galleryItems.length === 0) return;
-        
-        // Pick a random gallery item
-        const randomIndex = Math.floor(Math.random() * this.galleryItems.length);
-        const item = this.galleryItems[randomIndex];
-        const element = item.element;
-        
-        // Get a new random image that's different from current
-        let newImageIndex;
-        do {
-            newImageIndex = Math.floor(Math.random() * this.images.length);
-        } while (newImageIndex === item.currentImageIndex && this.images.length > 1);
-        
-        const currentImg = element.querySelector('.gallery-img.current');
-        const nextImg = element.querySelector('.gallery-img.next');
-        
-        // Set the new image
-        nextImg.src = `Fotos/${this.images[newImageIndex]}`;
-        
-        // Wait for image to load then animate
-        nextImg.onload = function() {
-            element.classList.add('transitioning');
+        this.slides.forEach((slide, index) => {
+            // Calculate circular distance
+            let offset = (index - this.currentIndex + total) % total;
+            if (offset > total / 2) {
+                offset -= total;
+            }
             
-            setTimeout(() => {
-                // Swap classes
-                currentImg.classList.remove('current');
-                currentImg.classList.add('next');
-                nextImg.classList.remove('next');
-                nextImg.classList.add('current');
+            // Hide distant slides for performance and clean look
+            if (Math.abs(offset) > 4) {
+                slide.style.opacity = 0;
+                slide.style.pointerEvents = 'none';
+                slide.style.transform = `translate(-50%, -50%) scale(0.5)`;
+                slide.style.zIndex = 0;
+                return;
+            }
+            
+            slide.style.opacity = 1;
+            slide.style.pointerEvents = 'auto';
+            
+            if (offset === 0) {
+                // Center Item
+                slide.style.zIndex = 20;
+                slide.style.transform = `translate(-50%, -50%) scale(1)`;
+                slide.style.filter = 'none';
+                slide.style.boxShadow = '0 20px 50px rgba(0,0,0,0.5)';
+            } else if (offset < 0) {
+                // Left Side (Negative offset)
+                slide.style.zIndex = 10 + offset; // 9, 8, 7...
                 
-                // Update the src of the old current (now next) for future transitions
-                element.classList.remove('transitioning');
+                // Config
+                const baseTranslate = -400; // px (Adjusted for smaller size)
+                const stackStep = 40; // px
+                const rotateAngle = 60; // deg
+                const zStep = -100; // px
                 
-                // Update tracking
-                item.currentImageIndex = newImageIndex;
-            }, 800);
-        };
+                // Note: offset is negative here.
+                // We want offset -1 to be at -400.
+                // Offset -2 to be at -440.
+                // So: -400 + ((offset + 1) * stackStep)
+                
+                const finalTx = -420 + ((offset + 1) * 40);
+                
+                slide.style.transform = `translate(-50%, -50%) translateX(${finalTx}px) translateZ(${Math.abs(offset) * -50}px) rotateY(${rotateAngle}deg) scale(0.9)`;
+                slide.style.filter = 'brightness(0.6) grayscale(30%)';
+                slide.style.boxShadow = '-5px 0 10px rgba(0,0,0,0.3)';
+                
+            } else {
+                // Right Side (Positive offset)
+                slide.style.zIndex = 10 - offset;
+                
+                const rotateAngle = -60;
+                
+                // Mirror logic
+                const finalTx = 420 + ((offset - 1) * 40);
+                
+                slide.style.transform = `translate(-50%, -50%) translateX(${finalTx}px) translateZ(${Math.abs(offset) * -50}px) rotateY(${rotateAngle}deg) scale(0.9)`;
+                slide.style.filter = 'brightness(0.6) grayscale(30%)';
+                slide.style.boxShadow = '5px 0 10px rgba(0,0,0,0.3)';
+            }
+        });
     },
     
-    getLayoutClass: function(index) {
-        // Create visual variety in the grid
-        const pattern = index % 10;
-        if (pattern === 0 || pattern === 7) return 'large';
-        if (pattern === 3) return 'tall';
-        return '';
-    },
-    
-    loadMore: function() {
-        const self = this;
-        const startIndex = this.displayedImages;
-        const endIndex = Math.min(startIndex + this.imagesPerLoad, this.images.length);
+    goToSlide: function(index) {
+        let newIndex = index;
+        // Wrap around logic
+        if (newIndex < 0) newIndex = this.images.length - 1;
+        if (newIndex >= this.images.length) newIndex = 0;
         
-        for (let i = startIndex; i < endIndex; i++) {
-            const item = this.createGalleryItem(this.images[i], i);
-            item.style.opacity = '0';
-            item.style.transform = 'translateY(20px)';
-            this.grid.appendChild(item);
-            
-            // Track the new item
-            this.galleryItems.push({
-                element: item,
-                currentImageIndex: i
-            });
-            
-            // Animate in
-            setTimeout(() => {
-                item.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-                item.style.opacity = '1';
-                item.style.transform = 'translateY(0)';
-            }, (i - startIndex) * 100);
-        }
-        
-        this.displayedImages = endIndex;
-        this.updateLoadMoreButton();
+        this.currentIndex = newIndex;
+        this.updateCarousel();
+        this.resetAutoPlay();
     },
     
-    updateLoadMoreButton: function() {
-        if (this.displayedImages >= this.images.length) {
-            this.loadMoreBtn.classList.add('hidden');
-        } else {
-            this.loadMoreBtn.classList.remove('hidden');
-        }
+    nextSlide: function() {
+        this.goToSlide(this.currentIndex + 1);
+    },
+    
+    prevSlide: function() {
+        this.goToSlide(this.currentIndex - 1);
+    },
+    
+    startAutoPlay: function() {
+        if (this.autoPlayInterval) clearInterval(this.autoPlayInterval);
+        this.autoPlayInterval = setInterval(() => {
+            this.nextSlide();
+        }, 3000);
+    },
+    
+    resetAutoPlay: function() {
+        this.startAutoPlay();
     },
     
     bindEvents: function() {
-        const self = this;
+        const prevBtn = document.getElementById('gallery-prev');
+        const nextBtn = document.getElementById('gallery-next');
         
-        // Load more button
-        this.loadMoreBtn.addEventListener('click', () => self.loadMore());
+        if (prevBtn) prevBtn.addEventListener('click', () => this.prevSlide());
+        if (nextBtn) nextBtn.addEventListener('click', () => this.nextSlide());
+        
+        window.addEventListener('resize', () => this.updateCarousel());
         
         // Lightbox controls
-        document.querySelector('.lightbox-close').addEventListener('click', () => self.closeLightbox());
-        document.querySelector('.lightbox-prev').addEventListener('click', () => self.prevImage());
-        document.querySelector('.lightbox-next').addEventListener('click', () => self.nextImage());
+        const closeBtn = this.lightbox ? this.lightbox.querySelector('.lightbox-close') : null;
+        const lbPrevBtn = this.lightbox ? this.lightbox.querySelector('.lightbox-prev') : null;
+        const lbNextBtn = this.lightbox ? this.lightbox.querySelector('.lightbox-next') : null;
         
-        this.lightbox.addEventListener('click', (e) => {
-            if (e.target === self.lightbox) self.closeLightbox();
+        if (closeBtn) closeBtn.addEventListener('click', () => this.closeLightbox());
+        if (this.lightbox) {
+            this.lightbox.addEventListener('click', (e) => {
+                if (e.target === this.lightbox) this.closeLightbox();
+            });
+        }
+        
+        if (lbPrevBtn) lbPrevBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.prevImage();
+        });
+        
+        if (lbNextBtn) lbNextBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.nextImage();
         });
         
         document.addEventListener('keydown', (e) => {
-            if (!self.lightbox.classList.contains('active')) return;
-            if (e.key === 'Escape') self.closeLightbox();
-            if (e.key === 'ArrowLeft') self.prevImage();
-            if (e.key === 'ArrowRight') self.nextImage();
+            if (!this.lightbox || !this.lightbox.classList.contains('active')) return;
+            if (e.key === 'Escape') this.closeLightbox();
+            if (e.key === 'ArrowLeft') this.prevImage();
+            if (e.key === 'ArrowRight') this.nextImage();
         });
     },
     
     openLightbox: function(imgSrc) {
+        if (!this.lightboxImg) return;
         this.lightboxImg.src = imgSrc;
         this.lightbox.classList.add('active');
         document.body.style.overflow = 'hidden';
-        
-        // Find current index based on src
-        const filename = imgSrc.split('/').pop();
-        this.currentIndex = this.images.indexOf(filename);
-        if (this.currentIndex === -1) this.currentIndex = 0;
     },
     
     closeLightbox: function() {
+        if (!this.lightbox) return;
         this.lightbox.classList.remove('active');
         document.body.style.overflow = '';
     },
     
     prevImage: function() {
-        this.currentIndex = (this.currentIndex - 1 + this.images.length) % this.images.length;
+        let newIndex = this.currentIndex - 1;
+        if (newIndex < 0) newIndex = this.images.length - 1;
+        this.currentIndex = newIndex;
+        this.updateCarousel();
         this.lightboxImg.src = `Fotos/${this.images[this.currentIndex]}`;
     },
     
     nextImage: function() {
-        this.currentIndex = (this.currentIndex + 1) % this.images.length;
+        let newIndex = this.currentIndex + 1;
+        if (newIndex >= this.images.length) newIndex = 0;
+        this.currentIndex = newIndex;
+        this.updateCarousel();
         this.lightboxImg.src = `Fotos/${this.images[this.currentIndex]}`;
     }
 };
@@ -561,3 +559,217 @@ if ('IntersectionObserver' in window) {
         imageObserver.observe(img);
     });
 }
+
+/* ============================================
+   TEAM MODAL MODULE
+   ============================================ */
+const TeamModal = {
+    modal: null,
+    overlay: null,
+    closeBtn: null,
+    modalImage: null,
+    modalName: null,
+    modalRole: null,
+    modalDesc: null,
+    modalInsta: null,
+    modalInstaHandle: null,
+    
+    init: function() {
+        this.modal = document.getElementById('team-modal');
+        if (!this.modal) return;
+
+        this.overlay = this.modal.querySelector('.team-modal-overlay');
+        this.closeBtn = this.modal.querySelector('.team-modal-close');
+        this.modalImage = document.getElementById('modal-image');
+        this.modalName = document.getElementById('modal-name');
+        this.modalRole = document.getElementById('modal-role');
+        this.modalDesc = document.getElementById('modal-description');
+        this.modalInsta = document.getElementById('modal-instagram');
+        this.modalInstaHandle = document.getElementById('modal-instagram-handle');
+        
+        this.bindEvents();
+    },
+    
+    bindEvents: function() {
+        const self = this;
+        const teamMembers = document.querySelectorAll('.team-member');
+        
+        teamMembers.forEach(member => {
+            member.addEventListener('click', function() {
+                const data = {
+                    name: this.dataset.name,
+                    role: this.dataset.role,
+                    image: this.dataset.image,
+                    description: this.dataset.description,
+                    instagram: this.dataset.instagram,
+                    link: this.dataset.link
+                };
+                self.open(data);
+            });
+        });
+        
+        this.closeBtn.addEventListener('click', () => this.close());
+        this.overlay.addEventListener('click', () => this.close());
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && self.modal.classList.contains('active')) {
+                self.close();
+            }
+        });
+    },
+    
+    open: function(data) {
+        this.modalImage.src = data.image;
+        this.modalImage.alt = data.name;
+        this.modalName.textContent = data.name;
+        this.modalRole.textContent = data.role;
+        this.modalDesc.textContent = data.description;
+        this.modalInsta.href = data.link;
+        this.modalInstaHandle.textContent = data.instagram;
+        
+        this.modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    },
+    
+    close: function() {
+        this.modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+};
+
+/* ============================================
+   SPACE MARQUEE (INFINITE SCROLL) & LIGHTBOX
+   ============================================ */
+const SpaceMarquee = {
+    images: [],
+    currentImageIndex: 0,
+    lightbox: null,
+    lightboxImg: null,
+
+    init: function() {
+        const track = document.getElementById('marquee-track');
+        if (!track) return;
+
+        // Collect images for lightbox
+        const originalImages = track.querySelectorAll('img');
+        this.images = Array.from(originalImages).map(img => img.src);
+
+        // Clone content to ensure seamless loop
+        const content = track.innerHTML;
+        track.innerHTML = content + content + content; // Triple content for safety
+
+        // Animation logic
+        let scrollPos = 0;
+        const speed = 0.5; // Pixels per frame
+        let isHovered = false;
+        let animationId;
+
+        const animate = () => {
+            if (!isHovered) {
+                scrollPos -= speed;
+                // Reset when first set is fully scrolled out
+                if (Math.abs(scrollPos) >= track.scrollWidth / 3) {
+                    scrollPos = 0;
+                }
+                track.style.transform = `translateX(${scrollPos}px)`;
+            }
+            animationId = requestAnimationFrame(animate);
+        };
+
+        // Pause on hover
+        track.addEventListener('mouseenter', () => isHovered = true);
+        track.addEventListener('mouseleave', () => isHovered = false);
+
+        // Start animation
+        animate();
+
+        // Initialize Lightbox
+        this.initLightbox(track);
+    },
+
+    initLightbox: function(track) {
+        this.lightbox = document.getElementById('space-lightbox');
+        this.lightboxImg = document.getElementById('space-lightbox-img');
+        const closeBtn = this.lightbox ? this.lightbox.querySelector('.lightbox-close') : null;
+        const prevBtn = this.lightbox ? this.lightbox.querySelector('.lightbox-prev') : null;
+        const nextBtn = this.lightbox ? this.lightbox.querySelector('.lightbox-next') : null;
+
+        if (!this.lightbox || !this.lightboxImg) return;
+
+        // Open Lightbox on Click
+        track.addEventListener('click', (e) => {
+            // Check if clicked element is an image or inside an image wrapper
+            const img = e.target.closest('img');
+            if (img) {
+                const src = img.src;
+                // Find index based on src (handling potential URL encoding differences)
+                this.currentImageIndex = this.images.findIndex(s => s === src || decodeURIComponent(s) === decodeURIComponent(src));
+                
+                // If not found (maybe due to cloning or other issues), try to find by filename
+                if (this.currentImageIndex === -1) {
+                     this.currentImageIndex = this.images.findIndex(s => s.split('/').pop() === src.split('/').pop());
+                }
+
+                if (this.currentImageIndex !== -1) {
+                    this.openLightbox();
+                }
+            }
+        });
+
+        // Close Lightbox
+        if (closeBtn) closeBtn.addEventListener('click', () => this.closeLightbox());
+        this.lightbox.addEventListener('click', (e) => {
+            if (e.target === this.lightbox) this.closeLightbox();
+        });
+
+        // Navigation
+        if (prevBtn) {
+            prevBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.prevImage();
+            });
+        }
+        if (nextBtn) {
+            nextBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.nextImage();
+            });
+        }
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (!this.lightbox.classList.contains('active')) return;
+            
+            if (e.key === 'Escape') this.closeLightbox();
+            if (e.key === 'ArrowLeft') this.prevImage();
+            if (e.key === 'ArrowRight') this.nextImage();
+        });
+    },
+
+    openLightbox: function() {
+        this.updateLightboxImage();
+        this.lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    },
+
+    closeLightbox: function() {
+        this.lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+    },
+
+    updateLightboxImage: function() {
+        if (this.images[this.currentImageIndex]) {
+            this.lightboxImg.src = this.images[this.currentImageIndex];
+        }
+    },
+
+    prevImage: function() {
+        this.currentImageIndex = (this.currentImageIndex - 1 + this.images.length) % this.images.length;
+        this.updateLightboxImage();
+    },
+
+    nextImage: function() {
+        this.currentImageIndex = (this.currentImageIndex + 1) % this.images.length;
+        this.updateLightboxImage();
+    }
+};
