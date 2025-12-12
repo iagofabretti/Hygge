@@ -286,7 +286,7 @@ button {
 }
 
 .navbar.scrolled {
-    background: var(--color-white);
+    background: var(--color-bg-light);
     padding: var(--spacing-sm) 0;
     box-shadow: var(--shadow-sm);
 }
