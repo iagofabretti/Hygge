@@ -1665,6 +1665,31 @@ button {
         width: 300px;
         height: 220px;
     }
+    
+    .team-grid {
+        flex-wrap: wrap;
+        gap: 15px;
+        padding: 10px;
+    }
+    
+    .team-member {
+        flex: 0 0 calc(50% - 10px);
+        max-width: calc(50% - 10px);
+        min-width: 140px;
+    }
+    
+    .member-info {
+        padding-top: 8px;
+    }
+    
+    .member-name {
+        font-size: 0.9rem;
+        margin-bottom: 0;
+    }
+    
+    .member-role {
+        display: none;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1876,6 +1901,7 @@ button {
     color: var(--color-gray);
     text-transform: uppercase;
     letter-spacing: 2px;
+    white-space: nowrap;
 }
 
 /* ============================================
