@@ -14,7 +14,7 @@
     --color-white: #FEFEFE;
     
     /* Extended Palette */
-    --color-bg-light: #F2F2F2;
+    --color-bg-light: #D5D5D5;
     --color-text-light: #CCCCCC;
     --color-gray-light: #E5E5E5;
     --color-gray-dark: #3A3A3A;
@@ -189,7 +189,7 @@ button {
 
 .section-header {
     text-align: center;
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: var(--spacing-md);
 }
 
 /* Buttons */
@@ -550,7 +550,7 @@ button {
    ABOUT SECTION
    ============================================ */
 .about {
-    padding: var(--spacing-xxl) 0;
+    padding: var(--spacing-lg) 0;
     background: var(--color-bg-light);
 }
 
@@ -663,7 +663,7 @@ button {
    SPACE SECTION
    ============================================ */
 .space {
-    padding: var(--spacing-xxl) 0;
+    padding: var(--spacing-lg) 0;
     background-color: #111; /* Fundo escuro para contraste premium */
     color: var(--color-white);
     overflow: hidden;
@@ -786,7 +786,7 @@ button {
     left: 0;
     width: 100%;
     height: 100%;
-    background: var(--color-overlay);
+    background: rgba(1, 1, 1, 0.85);
     z-index: 1;
 }
 
@@ -820,6 +820,10 @@ button {
     box-shadow: 
         0 8px 32px rgba(0, 0, 0, 0.2),
         inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    min-height: 350px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .service-card::before {
@@ -871,7 +875,7 @@ button {
 
 .service-card:hover .service-hover {
     opacity: 1;
-    transform: scale(1.1);
+    transform: scale(1.05);
 }
 
 .service-card:hover .service-icon,
@@ -892,10 +896,10 @@ button {
     left: 0;
     width: 100%;
     height: 100%;
-    opacity: 0;
+    opacity: 0.6;
     transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1;
-    transform: scale(1.2);
+    transform: scale(1);
 }
 
 .service-hover::after {
@@ -907,8 +911,8 @@ button {
     height: 100%;
     background: linear-gradient(
         180deg,
-        rgba(1, 1, 1, 0.4) 0%,
-        rgba(1, 1, 1, 0.8) 100%
+        rgba(1, 1, 1, 0.3) 0%,
+        rgba(1, 1, 1, 0.7) 100%
     );
 }
 
@@ -916,6 +920,7 @@ button {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    filter: brightness(1.15);
 }
 
 .service-icon {
@@ -925,6 +930,7 @@ button {
     transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     display: inline-block;
     position: relative;
+    z-index: 2;
 }
 
 .service-icon::after {
@@ -946,14 +952,16 @@ button {
     margin-bottom: 0.5rem;
     transition: all 0.4s ease;
     position: relative;
+    z-index: 2;
 }
 
 .service-description {
     font-size: 0.95rem;
-    color: rgba(254, 254, 254, 0.7);
+    color: rgba(254, 254, 254, 0.9);
     transition: all 0.4s ease;
     line-height: 1.7;
     position: relative;
+    z-index: 2;
 }
 
 /* ============================================
@@ -962,13 +970,49 @@ button {
    GALLERY CAROUSEL (COVERFLOW STYLE)
    ============================================ */
 .gallery {
-    padding: var(--spacing-xxl) 0;
+    padding: var(--spacing-md) 0;
     background: var(--color-bg-light);
     overflow: hidden;
 }
 
 .gallery .section-header {
-    margin-bottom: var(--spacing-md); /* Reduced from xl to md */
+    margin-bottom: var(--spacing-sm);
+}
+
+/* Gallery Month Tabs */
+.gallery-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: var(--spacing-lg);
+    flex-wrap: wrap;
+}
+
+.gallery-tab {
+    padding: 0.75rem 2rem;
+    background: transparent;
+    border: 2px solid var(--color-gray);
+    color: var(--color-gray);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.gallery-tab:hover {
+    border-color: var(--color-black);
+    color: var(--color-black);
+    transform: translateY(-2px);
+}
+
+.gallery-tab.active {
+    background: var(--color-black);
+    border-color: var(--color-black);
+    color: var(--color-white);
 }
 
 .gallery-carousel-container {
@@ -1141,7 +1185,7 @@ button {
    TEAM SECTION
    ============================================ */
 .team {
-    padding: var(--spacing-xxl) 0;
+    padding: var(--spacing-lg) 0;
     background: var(--color-white);
 }
 
@@ -1174,7 +1218,7 @@ button {
    CONTACT SECTION
    ============================================ */
 .contact {
-    padding: var(--spacing-xxl) 0;
+    padding: var(--spacing-lg) 0;
     background: linear-gradient(135deg, var(--color-black) 0%, var(--color-gray-dark) 100%);
 }
 
@@ -1734,7 +1778,7 @@ button {
    TEAM SECTION
    ============================================ */
 .team {
-    padding: var(--spacing-xxl) 0;
+    padding: var(--spacing-md) 0;
     background-color: var(--color-bg-light);
     position: relative;
     overflow: hidden;
@@ -1743,39 +1787,17 @@ button {
 .team-grid {
     display: flex;
     flex-wrap: nowrap;
-    gap: 20px; /* Reduzido de 30px */
-    overflow-x: auto;
-    padding: 40px 20px;
-    -webkit-overflow-scrolling: touch;
-    /* scrollbar-width: none;  Removido para permitir scroll visível se necessário */
-    justify-content: flex-start;
-    scroll-behavior: smooth;
-}
-
-/* Estilização da barra de rolagem para ser discreta mas funcional */
-.team-grid::-webkit-scrollbar {
-    height: 6px;
-    display: block; /* Mostra a barra */
-}
-
-.team-grid::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.team-grid::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 3px;
-}
-
-/* Centraliza apenas se a tela for grande o suficiente para caber todos */
-@media (min-width: 1400px) {
-    .team-grid {
-        justify-content: center; 
-    }
+    gap: clamp(10px, 2vw, 20px); /* Gap responsivo */
+    overflow-x: visible; /* Remove scroll horizontal */
+    padding: 10px 20px;
+    justify-content: center;
+    align-items: flex-start;
 }
 
 .team-member {
-    flex: 0 0 240px; /* Reduzido de 300px para caber mais na tela */
+    flex: 1 1 0; /* Distribui espaço igualmente entre todos os cards */
+    min-width: 0; /* Permite encolher abaixo do tamanho do conteúdo */
+    max-width: 300px; /* Tamanho máximo em telas grandes */
     position: relative;
     cursor: pointer;
     transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -1788,7 +1810,7 @@ button {
 .member-image-wrapper {
     position: relative;
     width: 100%;
-    height: 320px; /* Ajustado proporcionalmente */
+    height: clamp(200px, 30vw, 320px); /* Altura responsiva */
     overflow: hidden;
     border-radius: 4px;
     box-shadow: 0 10px 20px rgba(0,0,0,0.1);
@@ -1823,10 +1845,10 @@ button {
 .member-hover-overlay span {
     color: #fff;
     border: 1px solid #fff;
-    padding: 10px 25px;
+    padding: clamp(8px, 1.5vw, 10px) clamp(15px, 3vw, 25px); /* Padding responsivo */
     text-transform: uppercase;
     letter-spacing: 2px;
-    font-size: 0.8rem;
+    font-size: clamp(0.65rem, 1.2vw, 0.8rem); /* Tamanho responsivo */
     transition: all 0.3s ease;
 }
 
@@ -1836,13 +1858,13 @@ button {
 }
 
 .member-info {
-    padding-top: 20px;
+    padding-top: clamp(10px, 2vw, 20px);
     text-align: center;
 }
 
 .member-name {
     font-family: var(--font-heading);
-    font-size: 1.5rem;
+    font-size: clamp(1rem, 2vw, 1.5rem); /* Tamanho responsivo */
     font-weight: 400;
     color: var(--color-black);
     margin-bottom: 5px;
@@ -1850,7 +1872,7 @@ button {
 
 .member-role {
     font-family: var(--font-body);
-    font-size: 0.8rem;
+    font-size: clamp(0.65rem, 1.2vw, 0.8rem); /* Tamanho responsivo */
     color: var(--color-gray);
     text-transform: uppercase;
     letter-spacing: 2px;

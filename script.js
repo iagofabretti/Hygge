@@ -246,29 +246,14 @@ const GalleryCarousel = {
     loadImages: function() {
         const self = this;
         
-        fetch('fotos.json')
-            .then(response => response.json())
-            .then(data => {
-                self.images = data.fotos;
-                self.buildCarousel();
-                self.startAutoPlay();
-            })
-            .catch(error => {
-                console.log('Loading fallback images');
-                self.loadFallbackImages();
-            });
-    },
-    
-    loadFallbackImages: function() {
-        this.images = [
-            'DSC06829.jpg', 'DSC06834.jpg', 'DSC06838.jpg', 'DSC06840.jpg',
-            'DSC06857.jpg', 'DSC06865.jpg', 'DSC06873.jpg', 'DSC06880.jpg',
-            'DSC06893.jpg', 'DSC06911.jpg', 'DSC06932.jpg', 'DSC06943.jpg',
-            'DSC07037.jpg', 'DSC07085.jpg', 'DSC07349.jpg', 'DSC07371.jpg'
-        ];
+        // Lista de fotos da pasta Fotos
+        this.images = ["Barbeiro.jpg","Coloração.jpg","Corte.jpg","DSC06834.jpg","DSC06840.jpg","DSC06842.jpg","DSC06843.jpg","DSC06847.jpg","DSC06851.jpg","DSC06854.jpg","DSC06855.jpg","DSC06857.jpg","DSC06860.jpg","DSC06865.jpg","DSC06867.jpg","DSC06870.jpg","DSC06873.jpg","DSC06880.jpg","DSC06884.jpg","DSC06885.jpg","DSC06888.jpg","DSC06894.jpg","DSC06896.jpg","DSC06897.jpg","DSC06906.jpg","DSC06911.jpg","DSC06914.jpg","DSC06920.jpg","DSC06924.jpg","DSC06926.jpg","DSC06927.jpg","DSC06929.jpg","DSC06932.jpg","DSC06934.jpg","DSC06943.jpg","DSC06955-Editar.jpg","DSC06959.jpg","DSC06964.jpg","DSC06968.jpg","DSC06969.jpg","DSC06976.jpg","DSC06978.jpg","DSC06983.jpg","DSC06988.jpg","DSC06995.jpg","DSC06998.jpg","DSC07000.jpg","DSC07001.jpg","DSC07004.jpg","DSC07009.jpg","DSC07015.jpg","DSC07018.jpg","DSC07022.jpg","DSC07025.jpg","DSC07027.jpg","DSC07031.jpg","DSC07038-Editar.jpg","DSC07039.jpg","DSC07045.jpg","DSC07055.jpg","DSC07067.jpg","DSC07091.jpg","DSC07099.jpg","DSC07102.jpg","DSC07109.jpg","DSC07113.jpg","DSC07115.jpg","DSC07141.jpg","DSC07332.jpg","DSC07346.jpg","DSC07349.jpg","DSC07362.jpg","DSC07374.jpg","DSC07506.jpg","DSC07623.jpg","DSC07628.jpg","MANICURE.jpg","MAQUIAGEM.jpg","Profissionais.jpg","Tratamento Capilares.jpg"].map(foto => `Fotos/${foto}`);
+        
         this.buildCarousel();
         this.startAutoPlay();
     },
+    
+
     
     buildCarousel: function() {
         this.track.innerHTML = '';
@@ -277,13 +262,11 @@ const GalleryCarousel = {
         this.images.forEach((img, index) => {
             const slide = document.createElement('div');
             slide.className = 'gallery-slide';
-            slide.innerHTML = `<img src="Fotos/${img}" alt="Hy.gge Salon" loading="lazy">`;
+            slide.innerHTML = `<img src="${img}" alt="Hy.gge Salon" loading="lazy">`;
             
             slide.addEventListener('click', () => {
-                // Calculate distance considering wrap-around for click logic if needed
-                // For now, simple index check
                 if (index === this.currentIndex) {
-                    this.openLightbox(`Fotos/${img}`);
+                    this.openLightbox(img);
                 } else {
                     this.goToSlide(index);
                 }
@@ -294,7 +277,6 @@ const GalleryCarousel = {
         });
         
         this.currentIndex = 0;
-        // Wait for DOM update
         setTimeout(() => this.updateCarousel(), 100);
     },
     
@@ -310,17 +292,16 @@ const GalleryCarousel = {
                 offset -= total;
             }
             
-            // Hide distant slides for performance and clean look
-            if (Math.abs(offset) > 4) {
-                slide.style.opacity = 0;
-                slide.style.pointerEvents = 'none';
-                slide.style.transform = `translate(-50%, -50%) scale(0.5)`;
-                slide.style.zIndex = 0;
+            // Esconde completamente slides distantes (mais que 2 posições) ou muito à esquerda
+            if (offset < -2 || offset > 3) {
+                slide.style.display = 'none';
                 return;
             }
             
+            slide.style.display = 'block';
             slide.style.opacity = 1;
             slide.style.pointerEvents = 'auto';
+            slide.style.visibility = 'visible';
             
             if (offset === 0) {
                 // Center Item
@@ -329,23 +310,12 @@ const GalleryCarousel = {
                 slide.style.filter = 'none';
                 slide.style.boxShadow = '0 20px 50px rgba(0,0,0,0.5)';
             } else if (offset < 0) {
-                // Left Side (Negative offset)
-                slide.style.zIndex = 10 + offset; // 9, 8, 7...
-                
-                // Config
-                const baseTranslate = -400; // px (Adjusted for smaller size)
-                const stackStep = 40; // px
-                const rotateAngle = 60; // deg
-                const zStep = -100; // px
-                
-                // Note: offset is negative here.
-                // We want offset -1 to be at -400.
-                // Offset -2 to be at -440.
-                // So: -400 + ((offset + 1) * stackStep)
+                // Left Side (Negative offset) - apenas -1 e -2 visíveis
+                slide.style.zIndex = 10 + offset;
                 
                 const finalTx = -420 + ((offset + 1) * 40);
                 
-                slide.style.transform = `translate(-50%, -50%) translateX(${finalTx}px) translateZ(${Math.abs(offset) * -50}px) rotateY(${rotateAngle}deg) scale(0.9)`;
+                slide.style.transform = `translate(-50%, -50%) translateX(${finalTx}px) translateZ(${Math.abs(offset) * -50}px) rotateY(60deg) scale(0.9)`;
                 slide.style.filter = 'brightness(0.6) grayscale(30%)';
                 slide.style.boxShadow = '-5px 0 10px rgba(0,0,0,0.3)';
                 
@@ -353,12 +323,9 @@ const GalleryCarousel = {
                 // Right Side (Positive offset)
                 slide.style.zIndex = 10 - offset;
                 
-                const rotateAngle = -60;
-                
-                // Mirror logic
                 const finalTx = 420 + ((offset - 1) * 40);
                 
-                slide.style.transform = `translate(-50%, -50%) translateX(${finalTx}px) translateZ(${Math.abs(offset) * -50}px) rotateY(${rotateAngle}deg) scale(0.9)`;
+                slide.style.transform = `translate(-50%, -50%) translateX(${finalTx}px) translateZ(${Math.abs(offset) * -50}px) rotateY(-60deg) scale(0.9)`;
                 slide.style.filter = 'brightness(0.6) grayscale(30%)';
                 slide.style.boxShadow = '5px 0 10px rgba(0,0,0,0.3)';
             }
@@ -452,7 +419,7 @@ const GalleryCarousel = {
         if (newIndex < 0) newIndex = this.images.length - 1;
         this.currentIndex = newIndex;
         this.updateCarousel();
-        this.lightboxImg.src = `Fotos/${this.images[this.currentIndex]}`;
+        this.lightboxImg.src = this.images[this.currentIndex];
     },
     
     nextImage: function() {
@@ -460,7 +427,7 @@ const GalleryCarousel = {
         if (newIndex >= this.images.length) newIndex = 0;
         this.currentIndex = newIndex;
         this.updateCarousel();
-        this.lightboxImg.src = `Fotos/${this.images[this.currentIndex]}`;
+        this.lightboxImg.src = this.images[this.currentIndex];
     }
 };
 
@@ -596,14 +563,7 @@ const TeamModal = {
         
         teamMembers.forEach(member => {
             member.addEventListener('click', function() {
-                const data = {
-                    name: this.dataset.name,
-                    role: this.dataset.role,
-                    image: this.dataset.image,
-                    description: this.dataset.description,
-                    instagram: this.dataset.instagram,
-                    link: this.dataset.link
-                };
+                const data = {"meses":[{"nome":"Dezembro","pasta":"12 - Dezembro","fotos":["DSC06075.jpg","DSC06511.jpg","DSC06527.jpg","DSC06530.jpg","DSC06533.jpg","DSC06534.jpg","DSC06536.jpg","DSC06539.jpg","DSC06542.jpg","DSC06544.jpg","DSC06545.jpg","DSC06547.jpg","DSC06549.jpg","DSC06552.jpg","DSC06553.jpg","DSC06555.jpg","DSC06559.jpg","DSC06560.jpg","DSC06564.jpg","DSC06566.jpg","DSC06569.jpg","DSC06571.jpg","DSC06574.jpg","DSC06575.jpg","DSC06577.jpg","DSC06578.jpg","DSC06581.jpg","DSC06583.jpg","DSC06589.jpg","DSC06601.jpg","DSC06602.jpg","DSC06620.jpg","DSC06625.jpg","DSC06627.jpg","DSC06634.jpg","DSC06637.jpg","DSC06640.jpg","DSC06642.jpg","DSC06644.jpg","DSC06648.jpg","DSC06651.jpg","DSC06661.jpg","DSC06669.jpg","DSC06674.jpg","DSC06678.jpg","DSC06681.jpg","DSC06684.jpg","DSC06687.jpg","DSC06689.jpg","DSC06691.jpg","DSC06693.jpg","DSC06694.jpg","DSC06697.jpg","DSC06699.jpg","DSC06701.jpg","DSC06703.jpg","DSC06705.jpg"]},{"nome":"Novembro","pasta":"11 - Novembro","fotos":["DSC07177-Editar.jpg","DSC07190.jpg","DSC07209.jpg","DSC07211-Editar.jpg","DSC07225.jpg","DSC07228.jpg","DSC07232.jpg","DSC07234.jpg","DSC07236.jpg","DSC07237.jpg","DSC07256.jpg","DSC07257.jpg","DSC07258.jpg","DSC07266.jpg","DSC07270.jpg","DSC07276.jpg","DSC07277.jpg","DSC07285.jpg","DSC07287.jpg","DSC07290.jpg","DSC07294.jpg","DSC07311.jpg","DSC07320.jpg","DSC07325.jpg","DSC07327.jpg","DSC07329.jpg","DSC07330.jpg","DSC07332.jpg","DSC07335.jpg","DSC07340.jpg","DSC07342.jpg","DSC07344.jpg","DSC07346.jpg","DSC07347.jpg","DSC07349.jpg","DSC07351.jpg","DSC07353.jpg","DSC07358.jpg","DSC07360.jpg","DSC07362.jpg","DSC07365.jpg","DSC07367.jpg","DSC07371.jpg","DSC07373.jpg","DSC07374.jpg","DSC07376.jpg","DSC07379.jpg","DSC07380.jpg","DSC07385.jpg","DSC07389.jpg","DSC07392.jpg","DSC07395.jpg","DSC07397.jpg","DSC07404.jpg","DSC07405.jpg","DSC07406.jpg","DSC07407.jpg","DSC07408.jpg","DSC07409.jpg","DSC07426.jpg","DSC07428.jpg","DSC07434.jpg","DSC07461.jpg","DSC07466.jpg","DSC07469-Editar.jpg","DSC07472.jpg","DSC07473.jpg","DSC07474.jpg","DSC07476.jpg","DSC07477.jpg","DSC07482.jpg","DSC07486-Editar.jpg","DSC07487.jpg","DSC07491.jpg","DSC07505.jpg","DSC07506.jpg","DSC07521.jpg","DSC07525.jpg","DSC07526.jpg","DSC07535.jpg","DSC07536.jpg","DSC07537-Editar.jpg","DSC07538.jpg","DSC07539.jpg","DSC07541.jpg","DSC07543-Editar.jpg","DSC07545.jpg","DSC07547.jpg","DSC07553.jpg","DSC07555.jpg","DSC07558.jpg","DSC07575.jpg","DSC07577.jpg","DSC07589-Editar.jpg","DSC07590.jpg","DSC07592.jpg","DSC07594.jpg","DSC07598.jpg","DSC07600.jpg","DSC07602.jpg","DSC07603-Editar.jpg","DSC07605.jpg","DSC07607.jpg","DSC07608.jpg","DSC07609.jpg","DSC07613.jpg","DSC07615-Editar.jpg","DSC07616.jpg","DSC07617-Editar.jpg","DSC07618.jpg","DSC07620.jpg","DSC07621.jpg","DSC07623.jpg","DSC07624.jpg","DSC07625.jpg","DSC07626.jpg","DSC07628.jpg","DSC07646.jpg","DSC07651.jpg","DSC07661.jpg","DSC07662.jpg","DSC07667.jpg","DSC07675.jpg","DSC07676.jpg","DSC07677.jpg","IMGL8481.jpg","IMGL8482.jpg","IMGL8483.jpg","IMGL8484.jpg","IMGL8485.jpg","IMGL8486.jpg","IMGL8487.jpg","IMGL8488.jpg","IMGL8489.jpg","IMGL8490.jpg","IMGL8492.jpg","IMGL8493.jpg","IMGL8494.jpg","IMGL8495.jpg"]},{"nome":"Outubro","pasta":"10 - Outubro","fotos":["DSC04895.jpg","DSC05126.jpg"]}]};
                 self.open(data);
             });
         });
