@@ -1382,6 +1382,23 @@ button {
     color: var(--color-gray);
 }
 
+.footer-credits {
+    font-size: 0.8rem;
+    color: var(--color-gray);
+    opacity: 0.85;
+    margin-top: 0.5rem;
+}
+
+.footer-credits a {
+    color: var(--color-gray);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+
+.footer-credits a:hover {
+    color: var(--color-white);
+}
+
 /* ============================================
    LIGHTBOX
    ============================================ */

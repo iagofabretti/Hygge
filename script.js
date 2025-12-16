@@ -246,8 +246,37 @@ const GalleryCarousel = {
     loadImages: function() {
         const self = this;
         
-        // Lista de fotos da pasta Fotos
-        this.images = ["Barbeiro.jpg","Coloração.jpg","Corte.jpg","DSC06834.jpg","DSC06840.jpg","DSC06842.jpg","DSC06843.jpg","DSC06847.jpg","DSC06851.jpg","DSC06854.jpg","DSC06855.jpg","DSC06857.jpg","DSC06860.jpg","DSC06865.jpg","DSC06867.jpg","DSC06870.jpg","DSC06873.jpg","DSC06880.jpg","DSC06884.jpg","DSC06885.jpg","DSC06888.jpg","DSC06894.jpg","DSC06896.jpg","DSC06897.jpg","DSC06906.jpg","DSC06911.jpg","DSC06914.jpg","DSC06920.jpg","DSC06924.jpg","DSC06926.jpg","DSC06927.jpg","DSC06929.jpg","DSC06932.jpg","DSC06934.jpg","DSC06943.jpg","DSC06955-Editar.jpg","DSC06959.jpg","DSC06964.jpg","DSC06968.jpg","DSC06969.jpg","DSC06976.jpg","DSC06978.jpg","DSC06983.jpg","DSC06988.jpg","DSC06995.jpg","DSC06998.jpg","DSC07000.jpg","DSC07001.jpg","DSC07004.jpg","DSC07009.jpg","DSC07015.jpg","DSC07018.jpg","DSC07022.jpg","DSC07025.jpg","DSC07027.jpg","DSC07031.jpg","DSC07038-Editar.jpg","DSC07039.jpg","DSC07045.jpg","DSC07055.jpg","DSC07067.jpg","DSC07091.jpg","DSC07099.jpg","DSC07102.jpg","DSC07109.jpg","DSC07113.jpg","DSC07115.jpg","DSC07141.jpg","DSC07332.jpg","DSC07346.jpg","DSC07349.jpg","DSC07362.jpg","DSC07374.jpg","DSC07506.jpg","DSC07623.jpg","DSC07628.jpg","MANICURE.jpg","MAQUIAGEM.jpg","Profissionais.jpg","Tratamento Capilares.jpg"].map(foto => `Fotos/${foto}`);
+        // Lista de fotos da pasta Fotos - Modelos intercaladas com espaços
+        this.images = [
+            // Modelo 1
+            "mod1a.jpg", "mod1b.jpg", "mod1c.jpg", "mod1d.jpg",
+            // Espaço
+            "esp1.jpg",
+            // Modelo 2
+            "mod2a.jpg", "mod2b.jpg", "mod2c.jpg", "mod2d.jpg", "mod2e.jpg",
+            // Espaço
+            "esp2.jpg",
+            // Modelo 3
+            "mod3a.jpg", "mod3b.jpg", "mod3c.jpg", "mod3d.jpg", "mod3e.jpg", "mod3f.jpg", "mod3g.jpg", "mod3h.jpg",
+            // Espaço
+            "esp3.jpg",
+            // Modelo 4
+            "mod4a.jpg", "mod4b.jpg", "mod4c.jpg", "mod4d.jpg", "mod4e.jpg", "mod4f.jpg", "mod4g.jpg", "mod4h.jpg", "mod4i.jpg",
+            // Espaço
+            "esp4.jpg",
+            // Modelo 5
+            "mod5a.jpg", "mod5b.jpg", "mod5c.jpg", "mod5d.jpg",
+            // Espaço
+            "esp5.jpg",
+            // Modelo 6
+            "mod6a.jpg", "mod6b.jpg", "mod6c.jpg", "mod6d.jpg", "mod6e.jpg",
+            // Espaço
+            "esp6.jpg",
+            // Modelo 7
+            "mod7a.jpg", "mod7b.jpg", "mod7c.jpg", "mod7d.jpg",
+            // Espaços restantes
+            "esp7.jpg", "esp8.jpg", "esp9.jpg", "esp10.jpg", "esp11.jpg", "esp12.jpg", "esp13.jpg", "esp14.jpg", "esp15.jpg", "esp16.jpg", "esp17.jpg", "esp18.jpg"
+        ].map(foto => `Fotos/${foto}`);
         
         this.buildCarousel();
         this.startAutoPlay();
