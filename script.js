@@ -261,7 +261,7 @@ const GalleryCarousel = {
             // Espaço
             "esp3.jpg",
             // Modelo 4
-            "mod4a.jpg", "mod4b.jpg", "mod4c.jpg", "mod4d.jpg", "mod4e.jpg", "mod4f.jpg", "mod4g.jpg", "mod4h.jpg", "mod4i.jpg",
+            "mod4b.jpg", "mod4c.jpg", "mod4d.jpg", "mod4e.jpg", "mod4f.jpg", "mod4g.jpg", "mod4h.jpg", "mod4i.jpg",
             // Espaço
             "esp4.jpg",
             // Modelo 5

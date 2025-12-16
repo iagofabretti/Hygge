@@ -1400,6 +1400,66 @@ button {
 }
 
 /* ============================================
+   WHATSAPP FLOATING BUTTON
+   ============================================ */
+.whatsapp-float {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 50px;
+    height: 50px;
+    background: #1a3a52;
+    color: var(--color-white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    box-shadow: 0 3px 10px rgba(26, 58, 82, 0.4);
+    z-index: 10001;
+    transition: all var(--transition-normal);
+    text-decoration: none;
+    border: none;
+    outline: none;
+}
+
+.whatsapp-float::before {
+    content: none;
+}
+
+.whatsapp-float:hover {
+    background: #2a5070;
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(26, 58, 82, 0.6);
+}
+
+.whatsapp-float i {
+    animation: pulse 2s infinite;
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .whatsapp-float {
+        bottom: 20px;
+        right: 20px;
+        width: 45px;
+        height: 45px;
+        font-size: 22px;
+    }
+}
+
+/* ============================================
    LIGHTBOX
    ============================================ */
 .lightbox {
@@ -1480,8 +1540,8 @@ button {
    ============================================ */
 .back-to-top {
     position: fixed;
-    bottom: var(--spacing-md);
-    right: var(--spacing-md);
+    bottom: 25px;
+    right: 85px;
     width: 50px;
     height: 50px;
     background: var(--color-black);
@@ -1494,7 +1554,7 @@ button {
     opacity: 0;
     visibility: hidden;
     transition: var(--transition-normal);
-    z-index: 999;
+    z-index: 10001;
     box-shadow: var(--shadow-md);
 }
 
@@ -1506,6 +1566,16 @@ button {
 .back-to-top:hover {
     background: var(--color-gray-dark);
     transform: translateY(-5px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .back-to-top {
+        bottom: 20px;
+        right: 75px;
+        width: 45px;
+        height: 45px;
+    }
 }
 
 /* ============================================
